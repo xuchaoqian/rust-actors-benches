@@ -110,9 +110,8 @@ fn process_messages(c: &mut Criterion) {
         }
     }
 
-    let id = format!(
-        "Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + do_send() ]"
-    );
+    let id =
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + do_send ]");
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
@@ -133,7 +132,7 @@ fn process_messages(c: &mut Criterion) {
     let _ = system.run();
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + send() ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + send ]");
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
@@ -154,7 +153,7 @@ fn process_messages(c: &mut Criterion) {
     let _ = system.run();
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + do_send() ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + do_send ]");
     let system = System::new();
     let arbiter = Arbiter::new();
     c.bench_function(&id, |b| {
@@ -177,8 +176,7 @@ fn process_messages(c: &mut Criterion) {
     System::current().stop();
     let _ = system.run();
 
-    let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + send() ]");
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + send ]");
     let system = System::new();
     let arbiter = Arbiter::new();
     c.bench_function(&id, |b| {

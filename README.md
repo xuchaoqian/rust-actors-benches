@@ -33,4 +33,4 @@
 - Actix's do_send is **3~5 times faster** than Ractor's cast in single-threaded context.
 - Actix's do_send is **0.3~0.5 times faster** than Ractor's cast in multi-threaded context.
 - Actix's send is **0.5~1 times slower** than Ractor's call in single-threaded context.
-- Actix's send is **0.3~0.5 times faster** than Ractor's cast in multi-threaded context.
+- Actix's send is **0.3~0.5 times faster** than Ractor's call in multi-threaded context.

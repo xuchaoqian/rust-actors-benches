@@ -131,7 +131,7 @@ fn process_messages(c: &mut Criterion) {
     }
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + cast() ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + cast ]");
     let runtime = tokio::runtime::Builder::new_current_thread()
         .build()
         .unwrap();
@@ -158,7 +158,7 @@ fn process_messages(c: &mut Criterion) {
     });
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + call() ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + call ]");
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
@@ -185,8 +185,7 @@ fn process_messages(c: &mut Criterion) {
         );
     });
 
-    let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + cast() ]");
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + cast ]");
     let runtime = tokio::runtime::Builder::new_multi_thread().build().unwrap();
     c.bench_function(&id, move |b| {
         b.iter_batched(
@@ -210,8 +209,7 @@ fn process_messages(c: &mut Criterion) {
         );
     });
 
-    let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + call() ]");
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + call ]");
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_time()
         .build()
