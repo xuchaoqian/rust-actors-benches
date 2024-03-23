@@ -33,14 +33,18 @@ fn create_actors(c: &mut Criterion) {
 
     let id = format!("Creation of {small} actors");
     let system = System::new();
+    let arbiter = Arbiter::new();
+    let arbiter_handle = arbiter.handle();
     c.bench_function(&id, |b| {
         b.iter_batched(
             || {},
             |()| {
+                let arbiter_handle = arbiter_handle.clone();
                 system.block_on(async move {
                     let mut handles = vec![];
                     for _ in 0..small {
-                        let handle = BenchActor.start();
+                        let handle =
+                            BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
                         handles.push(handle);
                     }
                 })
@@ -51,19 +55,22 @@ fn create_actors(c: &mut Criterion) {
     System::current().stop();
     let _ = system.run();
 
-    let system = System::new();
     let id = format!("Creation of {large} actors");
+    let system = System::new();
+    let arbiter = Arbiter::new();
+    let arbiter_handle = arbiter.handle();
     c.bench_function(&id, |b| {
         b.iter_batched(
             || {},
             |()| {
+                let arbiter_handle = arbiter_handle.clone();
                 system.block_on(async move {
                     let mut handles = vec![];
                     for _ in 0..large {
-                        let handler = BenchActor.start();
-                        handles.push(handler);
+                        let handle =
+                            BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
+                        handles.push(handle);
                     }
-                    handles
                 })
             },
             BatchSize::PerIteration,
@@ -103,7 +110,9 @@ fn process_messages(c: &mut Criterion) {
         }
     }
 
-    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by do_send() ]");
+    let id = format!(
+        "Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + do_send() ]"
+    );
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
@@ -123,7 +132,8 @@ fn process_messages(c: &mut Criterion) {
     System::current().stop();
     let _ = system.run();
 
-    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by send() ]");
+    let id =
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + send() ]");
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
@@ -136,6 +146,54 @@ fn process_messages(c: &mut Criterion) {
                     }
                     addr
                 })
+            },
+            BatchSize::PerIteration,
+        );
+    });
+    System::current().stop();
+    let _ = system.run();
+
+    let id =
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + do_send() ]");
+    let system = System::new();
+    let arbiter = Arbiter::new();
+    c.bench_function(&id, |b| {
+        b.iter_batched(
+            || {
+                MessagingActor::start_in_arbiter(&arbiter.handle(), |_ctx| MessagingActor {
+                    state: 0,
+                })
+            },
+            |addr| {
+                system.block_on(async move {
+                    for _ in 0..NUM_MSGS {
+                        let _ = addr.do_send(BenchActorMessage);
+                    }
+                });
+            },
+            BatchSize::PerIteration,
+        );
+    });
+    System::current().stop();
+    let _ = system.run();
+
+    let id =
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + send() ]");
+    let system = System::new();
+    let arbiter = Arbiter::new();
+    c.bench_function(&id, |b| {
+        b.iter_batched(
+            || {
+                MessagingActor::start_in_arbiter(&arbiter.handle(), |_ctx| MessagingActor {
+                    state: 0,
+                })
+            },
+            |addr| {
+                system.block_on(async move {
+                    for _ in 0..NUM_MSGS {
+                        let _ = addr.send(BenchActorMessage).await.unwrap();
+                    }
+                });
             },
             BatchSize::PerIteration,
         );
