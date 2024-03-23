@@ -18,7 +18,7 @@
 
 ## Conclusion
 
-- In terms of creating actors, Actix is 5~10 times faster than Ractor.
-- In terms of casting msgs, Actix is 3~5 times faster than Ractor.
-- In terms of call msgs, Actix is 1.5~2 times slower than Ractor in single-thread context.
-- In terms of call msgs, Actix is 5~10 times faster than Ractor in multi-thread context.
+- In terms of creating actors, Actix is **5~10 times faster** than Ractor.
+- In terms of casting msgs, Actix is **3~5 times faster** than Ractor.
+- In terms of call msgs, Actix is **1.5~2 times slower** than Ractor in single-thread context.
+- In terms of call msgs, Actix is **5~10 times faster** than Ractor in multi-thread context.
