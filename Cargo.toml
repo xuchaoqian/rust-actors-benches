@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "actix-ractor-benches"
+name = "rust-actors-benches"
 version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -8,6 +8,7 @@ version = "0.1.0"
 [dependencies]
 actix = "0.13.3"
 criterion = "0.5"
+kameo = "0.8"
 ractor = {version = "0.9", default-features = false, features = ["tokio_runtime"]}
 tokio = {version = "1", features = ["full"]}
 
@@ -19,4 +20,9 @@ required-features = []
 [[bench]]
 harness = false
 name = "ractor"
+required-features = []
+
+[[bench]]
+harness = false
+name = "kameo"
 required-features = []

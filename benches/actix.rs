@@ -14,16 +14,16 @@ fn create_actors(c: &mut Criterion) {
     impl Actor for BenchActor {
         type Context = Context<Self>;
 
-        fn started(&mut self, ctx: &mut Self::Context) {
-            ctx.notify(BenchActorMessage);
+        fn started(&mut self, _ctx: &mut Self::Context) {
+            // ctx.notify(BenchActorMessage);
         }
     }
 
     impl Handler<BenchActorMessage> for BenchActor {
         type Result = ();
 
-        fn handle(&mut self, _msg: BenchActorMessage, ctx: &mut Context<Self>) -> Self::Result {
-            ctx.stop();
+        fn handle(&mut self, _msg: BenchActorMessage, _ctx: &mut Context<Self>) -> Self::Result {
+            // ctx.stop();
             ()
         }
     }
@@ -86,7 +86,9 @@ fn process_messages(c: &mut Criterion) {
 
     #[derive(Message)]
     #[rtype(result = "u64")]
-    struct BenchActorMessage;
+    struct BenchActorMessage {
+        n: u64,
+    }
 
     struct MessagingActor {
         state: u64,
@@ -101,8 +103,8 @@ fn process_messages(c: &mut Criterion) {
     impl Handler<BenchActorMessage> for MessagingActor {
         type Result = u64;
 
-        fn handle(&mut self, _msg: BenchActorMessage, ctx: &mut Context<Self>) -> Self::Result {
-            self.state += 1;
+        fn handle(&mut self, msg: BenchActorMessage, ctx: &mut Context<Self>) -> Self::Result {
+            self.state += msg.n;
             if self.state >= NUM_MSGS {
                 ctx.stop();
             }
@@ -120,7 +122,7 @@ fn process_messages(c: &mut Criterion) {
                 system.block_on(async move {
                     let addr = MessagingActor { state: 0 }.start();
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.do_send(BenchActorMessage);
+                        let _ = addr.do_send(BenchActorMessage { n: 1 });
                     }
                     addr
                 })
@@ -141,7 +143,7 @@ fn process_messages(c: &mut Criterion) {
                 system.block_on(async move {
                     let addr = MessagingActor { state: 0 }.start();
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.send(BenchActorMessage).await.unwrap();
+                        let _ = addr.send(BenchActorMessage { n: 1 }).await.unwrap();
                     }
                     addr
                 })
@@ -166,8 +168,9 @@ fn process_messages(c: &mut Criterion) {
             |addr| {
                 system.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.do_send(BenchActorMessage);
+                        let _ = addr.do_send(BenchActorMessage { n: 1 });
                     }
+                    addr
                 });
             },
             BatchSize::PerIteration,
@@ -189,8 +192,9 @@ fn process_messages(c: &mut Criterion) {
             |addr| {
                 system.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.send(BenchActorMessage).await.unwrap();
+                        let _ = addr.send(BenchActorMessage { n: 1 }).await.unwrap();
                     }
+                    addr
                 });
             },
             BatchSize::PerIteration,

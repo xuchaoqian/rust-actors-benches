@@ -20,20 +20,20 @@ fn create_actors(c: &mut Criterion) {
 
         async fn pre_start(
             &self,
-            myself: ActorRef<Self::Msg>,
+            _myself: ActorRef<Self::Msg>,
             _: (),
         ) -> Result<Self::State, ActorProcessingErr> {
-            let _ = myself.cast(BenchActorMessage);
+            // let _ = myself.cast(BenchActorMessage);
             Ok(())
         }
 
         async fn handle(
             &self,
-            myself: ActorRef<Self::Msg>,
+            _myself: ActorRef<Self::Msg>,
             _message: Self::Msg,
             _state: &mut Self::State,
         ) -> Result<(), ActorProcessingErr> {
-            myself.stop(None);
+            // myself.stop(None);
             Ok(())
         }
     }
