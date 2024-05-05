@@ -10,7 +10,7 @@
 - Ractor: 0.9.7
 - Kameo: 0.8.0
 
-## cargo bench --bench actix
+## cargo bench --bench [actix](https://github.com/actix/actix)
 
 - Creation of 100 actors time: **55.924 µs**
 - Creation of 10000 actors time: **15.639 ms**
@@ -19,7 +19,7 @@
 - Waiting on 100000 messages to be processed [ by **single-threaded + send** ] time: **244.69 ms**
 - Waiting on 100000 messages to be processed [ by **multi-threaded + send** ] time: **963.50 ms**
 
-## cargo bench --bench ractor
+## cargo bench --bench [ractor](https://github.com/slawlor/ractor)
 
 - Creation of 100 actors time: **1.6219 ms**
 - Creation of 10000 actors time: **164.34 ms**
@@ -28,7 +28,7 @@
 - Waiting on 100000 messages to be processed [ by **single-threaded + call** ] time: **126.76 ms**
 - Waiting on 100000 messages to be processed [ by **multi-threaded + call** ] time: **1.2307 s**
 
-## cargo bench --bench kameo
+## cargo bench --bench [kameo](https://github.com/tqwewe/kameo)
 
 - Creation of 100 actors time: **155.83 µs**
 - Creation of 10000 actors time: **17.216 ms**
