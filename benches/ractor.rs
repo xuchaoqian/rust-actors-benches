@@ -115,11 +115,11 @@ fn process_messages(c: &mut Criterion) {
             state: &mut Self::State,
         ) -> Result<(), ActorProcessingErr> {
             match message {
-                BenchActorMessage::Cast(how_much) => {
-                    *state += how_much;
+                BenchActorMessage::Cast(n) => {
+                    *state += n;
                 }
-                BenchActorMessage::Call(how_much, reply_port) => {
-                    *state += how_much;
+                BenchActorMessage::Call(n, reply_port) => {
+                    *state += n;
                     reply_port.send(*state).unwrap_or_else(|_err| {});
                 }
             }

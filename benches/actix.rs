@@ -41,11 +41,10 @@ fn create_actors(c: &mut Criterion) {
             |()| {
                 let arbiter_handle = arbiter_handle.clone();
                 system.block_on(async move {
-                    let mut handles = vec![];
+                    let mut addrs = vec![];
                     for _ in 0..small {
-                        let handle =
-                            BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
-                        handles.push(handle);
+                        let addr = BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
+                        addrs.push(addr);
                     }
                 })
             },
@@ -65,11 +64,10 @@ fn create_actors(c: &mut Criterion) {
             |()| {
                 let arbiter_handle = arbiter_handle.clone();
                 system.block_on(async move {
-                    let mut handles = vec![];
+                    let mut addrs = vec![];
                     for _ in 0..large {
-                        let handle =
-                            BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
-                        handles.push(handle);
+                        let addr = BenchActor::start_in_arbiter(&arbiter_handle, |_ctx| BenchActor);
+                        addrs.push(addr);
                     }
                 })
             },

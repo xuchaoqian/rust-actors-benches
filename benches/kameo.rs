@@ -50,12 +50,12 @@ fn create_actors(c: &mut Criterion) {
             || {},
             |()| {
                 runtime.block_on(async move {
-                    let mut handles = vec![];
+                    let mut actor_refs = vec![];
                     for _ in 0..small {
-                        let handler = kameo::actor::spawn_unsync(BenchActor);
-                        handles.push(handler);
+                        let actor_ref = kameo::actor::spawn_unsync(BenchActor);
+                        actor_refs.push(actor_ref);
                     }
-                    handles
+                    actor_refs
                 })
             },
             BatchSize::PerIteration,
@@ -69,12 +69,12 @@ fn create_actors(c: &mut Criterion) {
             || {},
             |()| {
                 runtime.block_on(async move {
-                    let mut handles = vec![];
+                    let mut actor_refs = vec![];
                     for _ in 0..large {
-                        let handler = kameo::actor::spawn_unsync(BenchActor);
-                        handles.push(handler);
+                        let actor_ref = kameo::actor::spawn_unsync(BenchActor);
+                        actor_refs.push(actor_ref);
                     }
-                    handles
+                    actor_refs
                 })
             },
             BatchSize::PerIteration,
