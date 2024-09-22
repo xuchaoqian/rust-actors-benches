@@ -7,7 +7,9 @@ use criterion::{BatchSize, Criterion};
 use kameo::{
     actor::ActorRef,
     error::BoxError,
+    mailbox::unbounded::UnboundedMailbox,
     message::{Context, Message},
+    request::MessageSend,
     Actor,
 };
 
@@ -16,6 +18,8 @@ fn create_actors(c: &mut Criterion) {
     struct BenchActor;
 
     impl Actor for BenchActor {
+        type Mailbox = UnboundedMailbox<Self>;
+
         fn on_start(
             &mut self,
             _actor_ref: ActorRef<Self>,
@@ -52,7 +56,7 @@ fn create_actors(c: &mut Criterion) {
                 runtime.block_on(async move {
                     let mut actor_refs = vec![];
                     for _ in 0..small {
-                        let actor_ref = kameo::actor::spawn_unsync(BenchActor);
+                        let actor_ref = kameo::actor::spawn(BenchActor);
                         actor_refs.push(actor_ref);
                     }
                     actor_refs
@@ -71,7 +75,7 @@ fn create_actors(c: &mut Criterion) {
                 runtime.block_on(async move {
                     let mut actor_refs = vec![];
                     for _ in 0..large {
-                        let actor_ref = kameo::actor::spawn_unsync(BenchActor);
+                        let actor_ref = kameo::actor::spawn(BenchActor);
                         actor_refs.push(actor_ref);
                     }
                     actor_refs
@@ -95,6 +99,8 @@ fn process_messages(c: &mut Criterion) {
     }
 
     impl Actor for MessagingActor {
+        type Mailbox = UnboundedMailbox<Self>;
+
         fn on_start(
             &mut self,
             _actor_ref: ActorRef<Self>,
@@ -119,23 +125,18 @@ fn process_messages(c: &mut Criterion) {
         }
     }
 
-    let id = format!(
-        "Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + send_async ]"
-    );
+    let id =
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + tell ]");
     let runtime = tokio::runtime::Builder::new_current_thread()
         .build()
         .unwrap();
     c.bench_function(&id, move |b| {
         b.iter_batched(
-            || {
-                runtime.block_on(
-                    async move { kameo::actor::spawn_unsync(MessagingActor { state: 0 }) },
-                )
-            },
+            || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
                 runtime.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.send_async(BenchActorMessage { n: 1 });
+                        let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send().await;
                     }
                     actor_ref
                 })
@@ -144,23 +145,18 @@ fn process_messages(c: &mut Criterion) {
         );
     });
 
-    let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + send ]");
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + ask ]");
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_time()
         .build()
         .unwrap();
     c.bench_function(&id, move |b| {
         b.iter_batched(
-            || {
-                runtime.block_on(
-                    async move { kameo::actor::spawn_unsync(MessagingActor { state: 0 }) },
-                )
-            },
+            || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
                 runtime.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.send(BenchActorMessage { n: 1 }).await;
+                        let _ = actor_ref.ask(BenchActorMessage { n: 1 }).send().await;
                     }
                     actor_ref
                 })
@@ -169,21 +165,15 @@ fn process_messages(c: &mut Criterion) {
         );
     });
 
-    let id = format!(
-        "Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + send_async ]"
-    );
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + tell ]");
     let runtime = tokio::runtime::Builder::new_multi_thread().build().unwrap();
     c.bench_function(&id, move |b| {
         b.iter_batched(
-            || {
-                runtime.block_on(
-                    async move { kameo::actor::spawn_unsync(MessagingActor { state: 0 }) },
-                )
-            },
+            || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
                 runtime.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.send_async(BenchActorMessage { n: 1 });
+                        let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send().await;
                     }
                     actor_ref
                 })
@@ -192,22 +182,18 @@ fn process_messages(c: &mut Criterion) {
         );
     });
 
-    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + send ]");
+    let id = format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + ask ]");
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_time()
         .build()
         .unwrap();
     c.bench_function(&id, move |b| {
         b.iter_batched(
-            || {
-                runtime.block_on(
-                    async move { kameo::actor::spawn_unsync(MessagingActor { state: 0 }) },
-                )
-            },
+            || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
                 runtime.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.send(BenchActorMessage { n: 1 }).await;
+                        let _ = actor_ref.ask(BenchActorMessage { n: 1 }).send().await;
                     }
                     actor_ref
                 })
