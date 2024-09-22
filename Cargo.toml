@@ -1,14 +1,14 @@
 [package]
-edition = "2021"
 name = "rust-actors-benches"
-version = "0.1.0"
+version = "0.2.0"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix = "0.13"
+actix = "0.13.5"
 criterion = "0.5"
-kameo = "0.10"
+kameo = "0.10.0"
 ractor = {version = "0.11.1", default-features = false, features = ["tokio_runtime"]}
 tokio = {version = "1", features = ["full"]}
 
