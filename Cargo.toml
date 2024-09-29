@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 actix = "0.13.5"
 criterion = "0.5"
-kameo = "0.10.0"
+kameo = "0.11.0"
 ractor = {version = "0.11.1", default-features = false, features = ["tokio_runtime"]}
 tokio = {version = "1", features = ["full"]}
 

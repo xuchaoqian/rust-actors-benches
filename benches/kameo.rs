@@ -9,7 +9,7 @@ use kameo::{
     error::BoxError,
     mailbox::unbounded::UnboundedMailbox,
     message::{Context, Message},
-    request::MessageSend,
+    request::{MessageSend, MessageSendSync},
     Actor,
 };
 
@@ -19,16 +19,6 @@ fn create_actors(c: &mut Criterion) {
 
     impl Actor for BenchActor {
         type Mailbox = UnboundedMailbox<Self>;
-
-        fn on_start(
-            &mut self,
-            _actor_ref: ActorRef<Self>,
-        ) -> impl Future<Output = Result<(), BoxError>> + Send {
-            async {
-                // actor_ref.send(BenchActorMessage).await.unwrap();
-                Ok(())
-            }
-        }
     }
 
     impl Message<BenchActorMessage> for BenchActor {
@@ -39,7 +29,6 @@ fn create_actors(c: &mut Criterion) {
             _msg: BenchActorMessage,
             _ctx: Context<'_, Self, Self::Reply>,
         ) -> Self::Reply {
-            // ctx.actor_ref().kill();
             ()
         }
     }
@@ -134,12 +123,10 @@ fn process_messages(c: &mut Criterion) {
         b.iter_batched(
             || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
-                runtime.block_on(async move {
-                    for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send().await;
-                    }
-                    actor_ref
-                })
+                for _ in 0..NUM_MSGS {
+                    let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send_sync();
+                }
+                actor_ref
             },
             BatchSize::PerIteration,
         );
@@ -171,12 +158,10 @@ fn process_messages(c: &mut Criterion) {
         b.iter_batched(
             || runtime.block_on(async move { kameo::actor::spawn(MessagingActor { state: 0 }) }),
             |actor_ref| {
-                runtime.block_on(async move {
-                    for _ in 0..NUM_MSGS {
-                        let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send().await;
-                    }
-                    actor_ref
-                })
+                for _ in 0..NUM_MSGS {
+                    let _ = actor_ref.tell(BenchActorMessage { n: 1 }).send_sync();
+                }
+                actor_ref
             },
             BatchSize::PerIteration,
         );
