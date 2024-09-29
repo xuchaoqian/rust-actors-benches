@@ -39,4 +39,8 @@
 
 ## Comparison
 
-![rust actors benches](./rust-actors-benches.png)
+![rust actors benches](./rust-actors-benches/rust-actors-benches.001.png)
+![rust actors benches](./rust-actors-benches/rust-actors-benches.002.png)
+![rust actors benches](./rust-actors-benches/rust-actors-benches.003.png)
+![rust actors benches](./rust-actors-benches/rust-actors-benches.004.png)
+![rust actors benches](./rust-actors-benches/rust-actors-benches.005.png)
