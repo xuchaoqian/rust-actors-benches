@@ -14,7 +14,8 @@ fn create_actors(c: &mut Criterion) {
     impl Actor for BenchActor {
         type Context = Context<Self>;
 
-        fn started(&mut self, _ctx: &mut Self::Context) {
+        fn started(&mut self, ctx: &mut Self::Context) {
+            ctx.set_mailbox_capacity(100000);
             // ctx.notify(BenchActorMessage);
         }
     }
@@ -95,7 +96,9 @@ fn process_messages(c: &mut Criterion) {
     impl Actor for MessagingActor {
         type Context = Context<Self>;
 
-        fn started(&mut self, _ctx: &mut Self::Context) {}
+        fn started(&mut self, ctx: &mut Self::Context) {
+            ctx.set_mailbox_capacity(100000);
+        }
     }
 
     impl Handler<BenchActorMessage> for MessagingActor {
