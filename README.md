@@ -12,30 +12,27 @@
 
 ## cargo bench --bench [actix](https://github.com/actix/actix)
 
-- Creation of 100 actors time: **45.527 µs**
-- Creation of 10000 actors time: **11.389 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + do_send** ] time: **14.091 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + do_send** ] time: **28.439 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + send** ] time: **224.48 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + send** ] time: **931.06 ms**
+- Creation of 10000 actors time: **5.0315 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + try_send** ] time: **9.0102 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + try_send** ] time: **28.867 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + send** ] time: **212.71 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + send** ] time: **923.45 ms**
 
 ## cargo bench --bench [ractor](https://github.com/slawlor/ractor)
 
-- Creation of 100 actors time: **850.30 µs**
-- Creation of 10000 actors time: **77.209 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + cast** ] time: **37.467 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + cast** ] time: **34.060 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + call** ] time: **122.74 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + call** ] time: **1.1686 s**
+- Creation of 10000 actors time: **68.510 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + cast** ] time: **36.834 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + cast** ] time: **34.510 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + call** ] time: **121.69 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + call** ] time: **1.1713 s**
 
 ## cargo bench --bench [kameo](https://github.com/tqwewe/kameo)
 
-- Creation of 100 actors time: **543.61 µs**
-- Creation of 10000 actors time: **53.045 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + tell** ] time: **14.525 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + tell** ] time: **28.440 ms**
-- Waiting on 100000 messages to be processed [ by **single-threaded + ask** ] time: **87.762 ms**
-- Waiting on 100000 messages to be processed [ by **multi-threaded + ask** ] time: **1.1482 s**
+- Creation of 10000 actors time: **47.906 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + tell** ] time: **13.954 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + tell** ] time: **27.482 ms**
+- Waiting on 100000 messages to be processed [ by **single-threaded + ask** ] time: **85.921 ms**
+- Waiting on 100000 messages to be processed [ by **multi-threaded + ask** ] time: **1.1574 s**
 
 ## Comparison
 

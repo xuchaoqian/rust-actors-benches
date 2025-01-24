@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate criterion;
 
+use std::time::Duration;
+
 use actix::prelude::*;
 use criterion::{BatchSize, Criterion};
 
@@ -16,7 +18,6 @@ fn create_actors(c: &mut Criterion) {
 
         fn started(&mut self, ctx: &mut Self::Context) {
             ctx.set_mailbox_capacity(100000);
-            // ctx.notify(BenchActorMessage);
         }
     }
 
@@ -24,7 +25,6 @@ fn create_actors(c: &mut Criterion) {
         type Result = ();
 
         fn handle(&mut self, _msg: BenchActorMessage, _ctx: &mut Context<Self>) -> Self::Result {
-            // ctx.stop();
             ()
         }
     }
@@ -114,16 +114,22 @@ fn process_messages(c: &mut Criterion) {
     }
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + do_send ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by single-threaded + try_send ]");
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
-            || {},
-            |()| {
+            || {
                 system.block_on(async move {
                     let addr = MessagingActor { state: 0 }.start();
+                    // Send one message to trigger the capacity check
+                    let _ = addr.send(BenchActorMessage { n: 1 }).await.unwrap();
+                    addr
+                })
+            },
+            |addr| {
+                system.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.do_send(BenchActorMessage { n: 1 });
+                        let _ = addr.try_send(BenchActorMessage { n: 1 }).unwrap();
                     }
                     addr
                 })
@@ -139,10 +145,9 @@ fn process_messages(c: &mut Criterion) {
     let system = System::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
-            || {},
-            |()| {
+            || system.block_on(async move { MessagingActor { state: 0 }.start() }),
+            |addr| {
                 system.block_on(async move {
-                    let addr = MessagingActor { state: 0 }.start();
                     for _ in 0..NUM_MSGS {
                         let _ = addr.send(BenchActorMessage { n: 1 }).await.unwrap();
                     }
@@ -156,20 +161,25 @@ fn process_messages(c: &mut Criterion) {
     let _ = system.run();
 
     let id =
-        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + do_send ]");
+        format!("Waiting on {NUM_MSGS} messages to be processed [ by multi-threaded + try_send ]");
     let system = System::new();
     let arbiter = Arbiter::new();
     c.bench_function(&id, |b| {
         b.iter_batched(
             || {
-                MessagingActor::start_in_arbiter(&arbiter.handle(), |_ctx| MessagingActor {
-                    state: 0,
+                let addr = MessagingActor::start_in_arbiter(&arbiter.handle(), |_ctx| {
+                    MessagingActor { state: 0 }
+                });
+                system.block_on(async move {
+                    // Send one message to trigger the capacity check
+                    let _ = addr.send(BenchActorMessage { n: 1 }).await.unwrap();
+                    addr
                 })
             },
             |addr| {
                 system.block_on(async move {
                     for _ in 0..NUM_MSGS {
-                        let _ = addr.do_send(BenchActorMessage { n: 1 });
+                        let _ = addr.try_send(BenchActorMessage { n: 1 }).unwrap();
                     }
                     addr
                 });
@@ -205,5 +215,9 @@ fn process_messages(c: &mut Criterion) {
     let _ = system.run();
 }
 
-criterion_group!(actix, create_actors, process_messages);
+criterion_group! {
+    name = actix;
+    config = Criterion::default().measurement_time(Duration::from_secs(5)).sample_size(100);
+    targets = create_actors, process_messages
+}
 criterion_main!(actix);

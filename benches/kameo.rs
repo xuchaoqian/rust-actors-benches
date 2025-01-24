@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate criterion;
 
-use std::future::Future;
+use std::{future::Future, time::Duration};
 
 use criterion::{BatchSize, Criterion};
 use kameo::{
@@ -188,5 +188,9 @@ fn process_messages(c: &mut Criterion) {
     });
 }
 
-criterion_group!(kameo, create_actors, process_messages);
+criterion_group! {
+    name = kameo;
+    config = Criterion::default().measurement_time(Duration::from_secs(5)).sample_size(100);
+    targets = create_actors, process_messages
+}
 criterion_main!(kameo);

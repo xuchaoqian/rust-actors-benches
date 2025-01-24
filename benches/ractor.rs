@@ -6,6 +6,8 @@
 #[macro_use]
 extern crate criterion;
 
+use std::time::Duration;
+
 use criterion::{BatchSize, Criterion};
 use ractor::{call_t, Actor, ActorProcessingErr, ActorRef, RpcReplyPort};
 
@@ -23,7 +25,6 @@ fn create_actors(c: &mut Criterion) {
             _myself: ActorRef<Self::Msg>,
             _: (),
         ) -> Result<Self::State, ActorProcessingErr> {
-            // let _ = myself.cast(BenchActorMessage);
             Ok(())
         }
 
@@ -33,7 +34,6 @@ fn create_actors(c: &mut Criterion) {
             _message: Self::Msg,
             _state: &mut Self::State,
         ) -> Result<(), ActorProcessingErr> {
-            // myself.stop(None);
             Ok(())
         }
     }
@@ -237,5 +237,9 @@ fn process_messages(c: &mut Criterion) {
     });
 }
 
-criterion_group!(ractor, create_actors, process_messages);
+criterion_group! {
+    name = ractor;
+    config = Criterion::default().measurement_time(Duration::from_secs(5)).sample_size(100);
+    targets = create_actors, process_messages
+}
 criterion_main!(ractor);
